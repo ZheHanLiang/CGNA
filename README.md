@@ -8,7 +8,7 @@ This is the source code for *Unsupervised Social Networks Alignment via Cross Ne
 
 ### Example execute command
 ```
-python initial_data_processing.py -n 5000 -g 5 -r 0.05 -d flickr
+python initial_data_processing.py -n 5000 -g 5 -r 0.05 -d lastfm
 ```
 ```
 python initial_data_processing_MC3.py
