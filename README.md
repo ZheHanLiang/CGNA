@@ -23,7 +23,7 @@ python main.py -d flickr-flickr
 * [networkx](http://networkx.github.io/)
 
 ## Data
-### Raw datasets
+### Raw dataset
 We used four public datasets in the paper: 
 
 * *[Last.fm](http://lfs.aminer.cn/lab-datasets/multi-sns/lastfm.tar.gz)*
@@ -34,7 +34,7 @@ You can learn more about these three datasets from [here](https://www.aminer.cn/
 
 * *[MC3](http://vacommunity.org/VAST+Challenge+2018+MC3)*
 
-### Processed datasets
+### Processed dataset
 You can get the processed datasets in *-data/data_backup*.
 
 If you want to use the back up data, please move the corresponding data to *-data/graph_edge*.
