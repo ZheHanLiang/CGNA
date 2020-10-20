@@ -129,7 +129,6 @@ for epoch in range(params.epoch_num):
         # save_best_model(params, model)
         # params.greatest_epoch = epoch
     print("=====> matching accuracy: acc_1: %.4f, acc_5: %.4f, acc_10: %.4f"%(acc_1, acc_5, acc_10))
-
     print("=====> epoch %d have finished!"%(epoch+1))
 
 ## Reload the best model
