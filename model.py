@@ -68,6 +68,8 @@ def save_best_model(params, model):
     """
     Save the best model
     """
+    if not os.path.exists(params.best_model_path): # If the best model path does not exist, creat it
+        os.makedirs(params.best_model_path)
     file_name = params.dataset + str(params.node_num) + '_best_model.pth'
     path = os.path.join(params.best_model_path, file_name)
     print("=====> Saving the best model ...")
