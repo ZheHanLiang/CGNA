@@ -11,7 +11,7 @@ import time
 
 def initialize_seed(params):
     """
-    初始化随机数种子
+    Initialize random seed
     """
     time_head = time.time() # Record start time
     if params.seed>0: # Generate random number seeds for numpy and torch when a positive seed value is set
@@ -24,7 +24,7 @@ def initialize_seed(params):
 
 def initialize_feature(params):
     """
-    初始化随机节点特征
+    Initialize random node features
     """
     # ## Noisy initial embedding
     # feature_s = (torch.ones(params.node_num, params.init_dim) + torch.randn(params.node_num, params.init_dim) / 10) * params.radius
