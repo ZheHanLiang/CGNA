@@ -2,9 +2,10 @@
 # @File: initial_data_processing_MC3.py
 # @Author: Zhehan Liang
 # @Date: 7/21/2020
-# @Intro: 对原始数据进行调整，对节点的数量、删除边节点的最小度数、数据格式等
-# 进行处理，并分别删去一定数量不重复的边，最后保存为源域和目标域两个新图，保存
-# 格式为.txt
+# @Intro: Adjust the original data, process the number of nodes, the minimum degree of the deleted edge node,
+# the data format, etc., and delete a certain number of non-duplicated edges respectively,
+# and finally save them as two new graphs of the source domain and the target domain, and save the format As .txt
+# tips: Real-world network, e.g. MC3-MC3
 # @Data source: http://vacommunity.org/VAST+Challenge+2018+MC3
 ##########################################################################
 
@@ -15,16 +16,16 @@ import argparse
 import csv
 
 def data_processing():
-    ## 参数设置
+    ## Parameter setting
     dataset = "MC3"
-    input_dir = "./data/graph_data/MC3/" # 原始数据文件路径
-    output_dir = "./data/graph_edge/" # 新数据文件存储路径
+    input_dir = "./data/graph_data/MC3/" # Original data file path
+    output_dir = "./data/graph_edge/" # New data file storage path
 
-    ## 路径设置
-    input_data_dir_call = input_dir + "calls.csv" # 原始数据路径
-    input_data_dir_email = input_dir + "emails.csv" # 原始数据路径
+    ## Path setting
+    input_data_dir_call = input_dir + "calls.csv" # Original data path for calls
+    input_data_dir_email = input_dir + "emails.csv" # Original data path for emails
 
-    ## 确定点，只保留联系次数大于等于num_1的点
+    ## Determine the node, only remain nodes whose contact times greater than or equal to num_1
     num_1 = 400
     weeks = 10000
     seconds = weeks * 24 * 3600 + 5000
@@ -33,8 +34,8 @@ def data_processing():
     with open(input_data_dir_call, 'r') as f:
         reader = csv.reader(f)
         for row in reader:
-            a = row[0]
-            b = row[2]
+            a = row[0] # Caller
+            b = row[2] # Reciever
             time = row[3]
             if int(time)<seconds:
                 if a not in user_call:
@@ -49,8 +50,8 @@ def data_processing():
     with open(input_data_dir_email, 'r') as f:
         reader = csv.reader(f)
         for row in reader:
-            a = row[0]
-            b = row[2]
+            a = row[0] # Sender
+            b = row[2] # Reciever
             time = row[3]
             if int(time)<seconds:
                 if a not in user_email:
@@ -65,11 +66,13 @@ def data_processing():
     print("User number:", len(user_call), len(user_email))
     del_call = []
     del_email = []
+    # Delete 'call' which don't meet the criteria
     for key in user_call:
         if user_call[key]<num_1:
             del_call.append(key)
     for user in del_call:
         del user_call[user]
+    # Delete 'email' which don't meet the criteria
     for key in user_email:
         if user_email[key]<num_1:
             del_email.append(key)
@@ -82,7 +85,7 @@ def data_processing():
     for user in users_set:
         users_dict[user] = index
         index += 1
-    ## 确定边，只保留联系次数大于等于num_2的边
+    ## Determine the edges, only remain the edges whose contact times greater than or equal to num_2
     num_2 = 1
     user_call_edges = {}
     user_email_edges = {}
@@ -119,23 +122,25 @@ def data_processing():
                     user_email_edges[a+'-'+b] = 1
             else: break
     print("Edge number:", len(user_call_edges), len(user_email_edges))
-    # 删除次数小于num_2的边
+    # Delete edges whose contact times less than num_2
     del_call = []
     del_email = []
+    # Delete 'call' which don't meet the criteria
     for key in user_call_edges:
         if user_call_edges[key]<num_2:
             del_call.append(key)
     for edge in del_call:
         del user_call_edges[edge]
+    # Delete 'email' which don't meet the criteria
     for key in user_email_edges:
         if user_email_edges[key]<num_2:
             del_email.append(key)
     for edge in del_email:
         del user_email_edges[edge]
     print("Discarded edge number:", len(user_call_edges), len(user_email_edges))
-    ## 保存边
-    output_source_dir = output_dir + "{0}_source_edges.txt".format(dataset) # 源域图路径
-    output_target_dir = output_dir + "{0}_target_edges.txt".format(dataset) # 目标域图路径
+    ## Save edges
+    output_source_dir = output_dir + "{0}_source_edges.txt".format(dataset) # Source graph path
+    output_target_dir = output_dir + "{0}_target_edges.txt".format(dataset) # Target graph path
     edges_call = ""
     edges_email = ""
     users_set_call = set()
@@ -149,7 +154,7 @@ def data_processing():
         for user in users_set:
             if user not in users_set_call:
                 edges_call += "{0} {0}\n".format(users_dict[user])
-    if not os.path.exists(output_dir): # 检查输出路径是否存在，若不存在则进行创建
+    if not os.path.exists(output_dir): # Check whether the output path exists, if not, create it
         os.makedirs(output_dir)
     f = open(output_source_dir, 'w', encoding='utf-8')
     f.write(edges_call)
