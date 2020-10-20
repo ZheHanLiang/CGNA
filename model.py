@@ -2,7 +2,7 @@
 # @File: model.py
 # @Author: Zhehan Liang
 # @Date: 6/8/2020
-# @Intro: GCN模型网络
+# @Intro: GCN/CNEN model network
 ##########################################################################
 
 import os
@@ -13,7 +13,7 @@ import torch.nn.functional as F
 
 class GCN(nn.Module):
     '''
-    GCN模型：Z = AXW
+    GCN model: Z = AXW
     '''
     def __init__(self, dim_in, dim_out):
         super(GCN,self).__init__()
@@ -23,7 +23,7 @@ class GCN(nn.Module):
 
     def forward(self, A_s, X_s, A_t, X_t):
         '''
-        计算三层GCN
+        Calculate three-layer GCN
         '''
         X_s = F.relu(self.fc1(A_s.mm(X_s)))
         X_s = F.relu(self.fc2(A_s.mm(X_s)))
@@ -31,17 +31,17 @@ class GCN(nn.Module):
         X_t = F.relu(self.fc2(A_t.mm(X_t)))
         return self.fc3(A_s.mm(X_s)), self.fc3(A_t.mm(X_t))
 
-## 跨图卷积
+## Cross-graph convolution
 class CNEN(nn.Module):
     '''
-    CNEN模型
+    CNEN model
     '''
     def __init__(self, dim_in, dim_out):
         super(CNEN,self).__init__()
-        self.fc1 = nn.Linear(dim_in, dim_in//2,bias=False) # 前段GCN第一层
-        self.fc2 = nn.Linear(dim_in//2, dim_in//2,bias=False) # 前段GCN第二层
-        self.fc3 = nn.Linear(dim_in//2, dim_in//2,bias=False) # Affinity Metric计算层
-        self.fc4 = nn.Linear(dim_in//2, dim_out,bias=False) # 后段GCN
+        self.fc1 = nn.Linear(dim_in, dim_in//2,bias=False) # (Front) first GCN layer
+        self.fc2 = nn.Linear(dim_in//2, dim_in//2,bias=False) # (Front) second GCN layer
+        self.fc3 = nn.Linear(dim_in//2, dim_in//2,bias=False) # Affinity Metric computing layer
+        self.fc4 = nn.Linear(dim_in//2, dim_out,bias=False) # Cross-graph GCN layer
 
     def forward(self, A_s, X_s, A_t, X_t):
         X_s = F.relu(self.fc1(A_s.mm(X_s)))
@@ -53,20 +53,20 @@ class CNEN(nn.Module):
 
 def build_model(params):
     '''
-    构建模型
+    Build model
     '''
     if params.model=='GCN':
         model = GCN(params.init_dim, params.emb_dim)
     else:
         model = CNEN(params.init_dim, params.emb_dim)
-    # 初始化cuda
+    # Initialization cuda
     if params.cuda:
         model.cuda()
     return model
 
 def save_best_model(params, model):
     """
-    保存训练过程中的最佳模型
+    Save the best model
     """
     file_name = params.dataset + str(params.node_num) + '_best_model.pth'
     path = os.path.join(params.best_model_path, file_name)
@@ -75,11 +75,11 @@ def save_best_model(params, model):
 
 def reload_best_model(params):
     """
-    读取保存的最佳模型
+    Reload the best model
     """
     file_name = params.dataset + str(params.node_num) + '_best_model.pth'
     path = os.path.join(params.best_model_path, file_name)
     print("=====> Reloading the best model ...")
-    assert os.path.isfile(path) # 检查是否存在最佳模型文件
+    assert os.path.isfile(path) # Check if the best model exists
     model = torch.load(path)
     return model
