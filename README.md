@@ -1,4 +1,4 @@
-# CNNA
+# CGNA
 ## Introduction
 This is the source code for *Unsupervised Social Networks Alignment via Cross Network Embedding*. 
 
