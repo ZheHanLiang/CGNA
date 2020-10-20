@@ -2,9 +2,9 @@
 # @File: initial_data_processing.py
 # @Author: Zhehan Liang
 # @Date: 6/8/2020
-# @Intro: 对原始数据进行调整，对节点的数量、删除边节点的最小度数、数据格式等
-# 进行处理，并分别删去一定数量不重复的边，最后保存为源域和目标域两个新图，保存
-# 格式为.txt
+# @Intro: Adjust the original data, process the number of nodes, the minimum degree of the deleted edge node,
+# the data format, etc., and delete a certain number of non-duplicated edges respectively,
+# and finally save them as two new graphs of the source domain and the target domain, and save the format As .txt
 # @Data source: https://www.aminer.cn/cosnet
 ##########################################################################
 
