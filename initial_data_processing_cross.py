@@ -28,7 +28,7 @@ def data_processing(args):
     map_dir = "./data/graph_map/" # Map file path
     output_dir = "./data/graph_edge/" # New data file storage path
 
-    ## 路径设置
+    ## Path setting
     input_data_edge_dir_s = input_dir + "{0}/{0}.edges".format(dataset_s) # Source domain graph edge path
     input_data_edge_dir_t = input_dir + "{0}/{0}.edges".format(dataset_t) # Target domain graph edge path
     input_data_node_dir_s = input_dir + "{0}/{0}.nodes".format(dataset_s) # Source domain graph node path
