@@ -2,9 +2,10 @@
 # @File: initial_data_processing_cross.py
 # @Author: Zhehan Liang
 # @Date: 8/18/2020
-# @Intro: 对原始数据进行调整，对节点的数量、删除边节点的最小度数、数据格式等
-# 进行处理，并分别删去一定数量不重复的边，最后保存为源域和目标域两个新图，保存
-# 格式为.txt
+# @Intro: Adjust the original data, process the number of nodes, the minimum degree of the deleted edge node,
+# the data format, etc., and delete a certain number of non-duplicated edges respectively,
+# and finally save them as two new graphs of the source domain and the target domain, and save the format As .txt
+# tips: Cross network, e.g. flickr-lastfm
 # @Data source: https://www.aminer.cn/cosnet
 ##########################################################################
 
@@ -19,27 +20,25 @@ def parse_args():
     return parser.parse_args()
 
 def data_processing(args):
-    ## 参数设置
-    # data_name = ["lastfm", "flickr", "myspace"] # 数据集名称列表(list)
-    # dataset = data_name[args.dataset]
+    ## Parameter setting
     datasets = args.dataset.split('-')
-    dataset_s = datasets[0]
-    dataset_t = datasets[1]
-    input_dir = "./data/graph_data/" # 原始数据文件路径
-    map_dir = "./data/graph_map/" # 映射文件路径
-    output_dir = "./data/graph_edge/" # 新数据文件存储路径
+    dataset_s = datasets[0] # Source dataset
+    dataset_t = datasets[1] # Target dataset
+    input_dir = "./data/graph_data/" # Original data file path
+    map_dir = "./data/graph_map/" # Map file path
+    output_dir = "./data/graph_edge/" # New data file storage path
 
     ## 路径设置
-    input_data_edge_dir_s = input_dir + "{0}/{0}.edges".format(dataset_s) # 源域图边路径
-    input_data_edge_dir_t = input_dir + "{0}/{0}.edges".format(dataset_t) # 目标域图边路径
-    input_data_node_dir_s = input_dir + "{0}/{0}.nodes".format(dataset_s) # 源域图节点路径
-    input_data_node_dir_t = input_dir + "{0}/{0}.nodes".format(dataset_t) # 目标域图节点路径
-    map_file = map_dir + "{0}.map.raw".format(args.dataset) # 映射文件路径
-    # output_new_data_dir = output_dir + "{0}-{0}_{1}_new.edges".format(dataset, total_num) # 保留目标数量节点文件路径
-    output_source_dir = output_dir + "{0}_source_edges.txt".format(args.dataset) # 源域图保存路径
-    output_target_dir = output_dir + "{0}_target_edges.txt".format(args.dataset) # 目标域图保存路径
+    input_data_edge_dir_s = input_dir + "{0}/{0}.edges".format(dataset_s) # Source domain graph edge path
+    input_data_edge_dir_t = input_dir + "{0}/{0}.edges".format(dataset_t) # Target domain graph edge path
+    input_data_node_dir_s = input_dir + "{0}/{0}.nodes".format(dataset_s) # Source domain graph node path
+    input_data_node_dir_t = input_dir + "{0}/{0}.nodes".format(dataset_t) # Target domain graph node path
+    map_file = map_dir + "{0}.map.raw".format(args.dataset) # Map file path
+    output_source_dir = output_dir + "{0}_source_edges.txt".format(args.dataset) # File path of source domain graph
+    output_target_dir = output_dir + "{0}_target_edges.txt".format(args.dataset) # File path of target domain graph
 
-    ## 读取映射文件，按顺序将每行的id存储为两个list，id在list中的索引就是对应在新图中的索引
+    ## Read the mapping file and store the id of each row as two lists in order
+    ## The index of the id in the list is the index corresponding to the new map
     id_list_s = []
     id_list_t = []
     map_num = 0
@@ -47,13 +46,12 @@ def data_processing(args):
     for line in f.readlines():
         ids = line.strip().split(' ')
         assert len(ids)==2, "ids's length error!"
-        map_dic = {ids[0]: ids[1]}
         id_list_s.append(ids[0])
         id_list_t.append(ids[1])
         map_num += 1
     f.close()
 
-    ## 根据.nodes文件确定各个id在原始图中的索引
+    ## Determine the index of each id in the original graph according to the '.nodes' file
     id_index_s = {}
     id_index_t = {}
     f = open(input_data_node_dir_s, 'r', encoding='utf-8')
@@ -79,7 +77,9 @@ def data_processing(args):
             id_index_t[index] = id_str
     f.close()
 
-    ## 遍历.edges文件，如果某一行的两个边索引都是id_index字典中的关键词的话，就根据对应的值（id名）和id_list确定它们在新图中的索引，记录构成的边
+    ## Traverse the .edges file, and if the two edge indexes of a row are keywords in the id_index dictionary,
+    ## determine their indexes in the new graph according to the corresponding value (id name) and id_list,
+    ## and record the edges that constitute it
     edges_s = ""
     edges_t = ""
     f = open(input_data_edge_dir_s, 'r', encoding='utf-8')
@@ -106,7 +106,7 @@ def data_processing(args):
             edges_t += "{0} {1} \n".format(index_1, index_2)
     f.close()
 
-    ## 保存源域图和目标域图
+    ## Save source and target graphs
     f_s = open(output_source_dir, 'w', encoding='utf-8')
     f_t = open(output_target_dir, 'w', encoding='utf-8')
     f_s.write(edges_s)
