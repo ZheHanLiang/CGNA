@@ -78,9 +78,9 @@ if params.profile_feature:
 else:
     src_emb, tgt_emb = initialize_feature(params)
 
-# ## 读取图
+## Read original graph
 G_source_original, G_target_original = read_graph(params)
-## 将原始图赋值给G_source和G_target，作为当前图
+## Assign the original graph to G_source and G_target as the current graph
 G_source = G_source_original
 G_target = G_target_original
 G_source_edge_num = nx.number_of_edges(G_source)
@@ -88,19 +88,19 @@ G_target_edge_num = nx.number_of_edges(G_target)
 print("=====> number of source grpah edge: %d, number of target grpah edge: %d"%(G_source_edge_num, G_target_edge_num))
 A_source = nx.adjacency_matrix(G_source)
 A_target = nx.adjacency_matrix(G_target)
-## 读取当前图的邻接矩阵，并进行标准化，方便进行图卷积
+## Get the adjacency matrix of the current graph and normalize it to facilitate graph convolution
 A_source_norm, A_target_norm = adjacency_matrix_normalize(params, G_source, G_target)
-## 构建网络
+## Build model
 model = build_model(params)
-## 选择adam优化器
+## Use adam optimizer
 gd = torch.optim.Adam(model.parameters(), lr=params.lr)
 
 for epoch in range(params.epoch_num):
-    ## early stop
+    ## Early stop
     if epoch>params.greatest_epoch+params.stop_epoch_num: break
 
-    ## 训练模型参数
-    time_head = time.time() # 记录开始时间
+    ## Embedding module training
+    time_head = time.time() # Record starting time
     for iteration in range(params.iteration_num):
         y_s, y_t,_ = model(A_source_norm, src_emb, A_target_norm, tgt_emb)
         loss = (y_s.norm(p=2, dim=1).mean() - params.radius) ** 2 + (y_t.norm(p=2, dim=1).mean() - params.radius) ** 2
@@ -109,30 +109,30 @@ for epoch in range(params.epoch_num):
         gd.step()
         if iteration%100==0:
             print(loss.data.cpu().numpy())
-    time_tail = time.time() # 记录完成时间
+    time_tail = time.time() # Record finish time
     print("=====> epoch %d GCN training has finished!\tTime: %.3f"%(epoch+1, time_tail-time_head))
     print("=====> epoch %d GCN training loss: %f"%(epoch+1, loss.detach().cpu().numpy()))
-    ## 相似度计算与最近点匹配
+    ## Similarity calculation and neighbouring point alignment
     y_s, y_t,_ = model(A_source_norm, src_emb, A_target_norm, tgt_emb)
     match_pairs = get_two_graph_scores(y_s.detach().cpu().numpy(), y_t.detach().cpu().numpy(), operation='match', method=params.metric_method)
     acc_1, acc_5, acc_10 = get_two_graph_scores(y_s.detach().cpu().numpy(), y_t.detach().cpu().numpy(), operation='evaluate', method=params.metric_method)
     if acc_1>params.precision_1_max:
         params.precision_1_max = acc_1
-        # 以acc_1为标准记录最优模型
+        # Record the optimal model with acc_1 as the standard
         save_best_model(params, model)
         params.greatest_epoch = epoch
     if acc_5>params.precision_5_max:
         params.precision_5_max = acc_5
     if acc_10>params.precision_10_max:
         params.precision_10_max = acc_10
-        # # 以acc_10为标准记录最优模型
+        # # Record the optimal model with acc_10 as the standard
         # save_best_model(params, model)
         # params.greatest_epoch = epoch
     print("=====> matching accuracy: acc_1: %.4f, acc_5: %.4f, acc_10: %.4f"%(acc_1, acc_5, acc_10))
 
     print("=====> epoch %d have finished!"%(epoch+1))
 
-## 重新载入最佳模型
+## Reload the best model
 model = reload_best_model(params)
 y_s, y_t, S = model(A_source_norm, src_emb, A_target_norm, tgt_emb)
 acc_1, acc_5, acc_10 = get_two_graph_scores(y_s.detach().cpu().numpy(), y_t.detach().cpu().numpy(), operation='evaluate', method=params.metric_method)
