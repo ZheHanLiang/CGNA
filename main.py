@@ -2,7 +2,7 @@
 # @File: main.py
 # @Author: Zhehan Liang
 # @Date: 6/8/2020
-# @Intro: 训练的主函数
+# @Intro: Main function for training
 ##########################################################################
 
 import time
@@ -18,16 +18,18 @@ from model import build_model, save_best_model, reload_best_model
 # from tsne import tsne
 # import matplotlib.pyplot as plt
 
-## 限制显卡
+## Limit the GPU
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]='2'
 
-## 随机数种子
+## Random seed
 np.random.seed(1)
 
 ## 参数设置
-parser = argparse.ArgumentParser(description='CNNA') # 实例化ArgumenParser
-parser.add_argument("--seed", type=int, default=1, help="Initialization seed(<=0 to disable)") # 使用add_argument函数添加参数
+parser = argparse.ArgumentParser(description='CNNA') # Instantiate ArgumenParser
+
+# Use add_argument function to add parameters
+parser.add_argument("--seed", type=int, default=1, help="Initialization seed(<=0 to disable)")
 parser.add_argument("--cuda", type=bool, default=True, help="Run on GPU")
 parser.add_argument("--profile_feature", type=bool, default=False, help="Using initial profile feature")
 parser.add_argument("--data_path", type=str, default="./data/graph_edge/", help="Path of edge file)")
@@ -47,28 +49,29 @@ parser.add_argument("--precision_1_max", type=float, default=0.0, help="Max prec
 parser.add_argument("--precision_5_max", type=float, default=0.0, help="Max precision of precision_5")
 parser.add_argument("--precision_10_max", type=float, default=0.0, help="Max precision of precision_10")
 parser.add_argument("--greatest_epoch", type=int, default=0, help="Greatest epoch")
-## initial profile feature
+## Initial profile feature
 parser.add_argument("--emb_dir", type=str, default="./data/profile_feature/")
 ## tsne
 parser.add_argument("--show_node_num", type=int, default=10)
+## Parsing parameter
+params = parser.parse_args()
 
-params = parser.parse_args() # 进行参数解析
-
-## 初始化随机数种子
+## Initialize random seed
 initialize_seed(params)
-## 获取节点数，真实数据集是固定的，合成数据集要按照生成时的参数确定
+## Get the number of nodes
+## (the real dataset is fixed and the synthetic datasets should be determined according to the parameters at the time of generation)
 if params.dataset == 'MC3-MC3': params.node_num = 5507
-# # 跨网络情况
+# # Cross-dataset situation
 # elif params.dataset == 'flickr-lastfm': params.node_num = 641
 # elif params.dataset == 'flickr-myspace': params.node_num = 509
 # elif params.dataset == 'lastfm-myspace': params.node_num = 1906
 else:
     datasets = params.dataset.split('-')
-    assert len(datasets)==2, "Please input datasets pair!" # 校验数据集输入的是否是数据集对
-    assert datasets[0]==datasets[1], "Unkown datasets pair!" # 校验数据集输入是否正确
+    assert len(datasets)==2, "Please input datasets pair!" # Assert whether the dataset input is a pair
+    assert datasets[0]==datasets[1], "Unkown datasets pair!" # Assert the dataset input is same
     params.node_num = get_node_num(params)
 
-## 获取嵌入矩阵
+## Get the initial embedding matrix
 if params.profile_feature:
     src_emb = load_embeddings(params, True)
     tgt_emb = load_embeddings(params, False)
