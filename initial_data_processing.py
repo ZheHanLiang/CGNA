@@ -4,7 +4,8 @@
 # @Date: 6/8/2020
 # @Intro: Adjust the original data, process the number of nodes, the minimum degree of the deleted edge node,
 # the data format, etc., and delete a certain number of non-duplicated edges respectively,
-# and finally save them as two new graphs of the source domain and the target domain, and save the format As .txt
+# and finally save them as two new graphs of the source domain and the target domain, and the saving format is .txt
+# tips: Non-cross network, e.g. flickr-flickr
 # @Data source: https://www.aminer.cn/cosnet
 ##########################################################################
 
@@ -14,6 +15,7 @@ import time
 import argparse
 
 def parse_args():
+    # Parameter setting
     parser = argparse.ArgumentParser(description="Initial data processing.")
     parser.add_argument('--dataset', '-d', type=str, default='lastfm', help='dataset name.')
     parser.add_argument('--total_num', '-n', type=int, default=10000, help='Number of nodes.')
@@ -23,33 +25,33 @@ def parse_args():
     return parser.parse_args()
 
 def data_processing(args):
-    ## 参数设置
+    ## Parameter setting
     dataset = args.dataset
-    input_dir = "./data/graph_data/" # 原始数据文件路径
-    output_dir = "./data/graph_edge/" # 新数据文件存储路径
-    total_num = args.total_num # 删减后总的节点数
-    start_node = args.start_node # 开始选择的节点序号，默认从第一个节点，即0开始
-    degree = args.degree # 考虑删除边的节点的最小度(degree)数
-    nodes_range = range(start_node, start_node+total_num) # 节点搜索范围
-    discard_edge_rate = args.discard_edge_rate # 单个图抛弃边的比例
+    input_dir = "./data/graph_data/" # Original data file path
+    output_dir = "./data/graph_edge/" # New data file path
+    total_num = args.total_num # Total number of nodes after discarding
+    start_node = args.start_node # The number of the first node to select, the default starts from 0
+    degree = args.degree # The minimum degree of discarded node
+    nodes_range = range(start_node, start_node+total_num) # Limit node search range
+    discard_edge_rate = args.discard_edge_rate # The proportion of discarded edges in a single graph
 
-    ## 路径设置
-    input_data_dir = input_dir + "{0}/{0}.edges".format(dataset) # 原始数据路径
-    output_new_data_dir = output_dir + "{0}-{0}_{1}_new.edges".format(dataset, total_num) # 保留目标数量节点文件路径
-    output_source_dir = output_dir + "{0}-{0}_source_edges.txt".format(dataset) # 源域图保存路径
-    output_target_dir = output_dir + "{0}-{0}_target_edges.txt".format(dataset) # 目标域图保存路径
+    ## Path setting
+    input_data_dir = input_dir + "{0}/{0}.edges".format(dataset) # Original data path
+    output_new_data_dir = output_dir + "{0}-{0}_{1}_new.edges".format(dataset, total_num) # File path of graph with specific number of nodes
+    output_source_dir = output_dir + "{0}-{0}_source_edges.txt".format(dataset) # File path of source domain graph
+    output_target_dir = output_dir + "{0}-{0}_target_edges.txt".format(dataset) # File path of target domain graph
 
-    ## 读取原始图数据中的边，并保存，保存后可以避免二次运行该部分
+    ## Read the edges in the original graph data and save it (after saving, you can avoid running this part twice)
     time_head = time.time()
     edges = ""
     f = open(input_data_dir, 'r', encoding='utf-8')
-    for line in f.readlines(): # 依次读入每行数据
+    for line in f.readlines(): # Read in each row of data in turn
         nodes = line.strip().split(' ') # nodes = [node0, node1]
-        if int(nodes[0]) in nodes_range and int(nodes[1]) in nodes_range and nodes[0]!=nodes[1]: # 仅记录在目标节点范围内的数据
+        if int(nodes[0]) in nodes_range and int(nodes[1]) in nodes_range and nodes[0]!=nodes[1]: # Only record data within the specific range of the nodes
             edges += "{0} {1}\n".format(nodes[0], nodes[1])
-        if int(nodes[0])>=total_num: break # 根据原始数据格式的特点，可以提前结束搜索
+        if int(nodes[0])>=total_num: break # According to the characteristics of the original data format, the search can be ended early
     f.close()
-    if not os.path.exists(output_dir): # 检查输出路径是否存在，若不存在则进行创建
+    if not os.path.exists(output_dir): # Check whether the output path exists, if not, just create it
         os.makedirs(output_dir)
     f = open(output_new_data_dir, 'w', encoding='utf-8')
     f.write(edges)
@@ -57,7 +59,7 @@ def data_processing(args):
     time_tail = time.time()
     print("%d nodes had been saved!\n1.Time:%.3f"%(total_num, time_tail-time_head))
 
-    ## 计算新图中的各项数据
+    ## Calculate the data of the new graph
     time_head = time.time()
     present_node = start_node # 当前节点识别符，从上面设置的start_node开始
     index_edge = 0 # 边的序号
