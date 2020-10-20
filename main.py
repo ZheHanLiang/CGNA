@@ -25,7 +25,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]='2'
 ## Random seed
 np.random.seed(1)
 
-## 参数设置
+## Parameter setting
 parser = argparse.ArgumentParser(description='CNNA') # Instantiate ArgumenParser
 
 # Use add_argument function to add parameters
