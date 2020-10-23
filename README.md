@@ -18,8 +18,9 @@ python main.py -d flickr-flickr
 ```
 
 ## Dependencies
-* Python 2/3 with [NumPy](http://www.numpy.org/)
-* [PyTorch](http://pytorch.org/)
+* Python == 3.5.2
+* [NumPy](http://www.numpy.org/)
+* [PyTorch](http://pytorch.org/) == 1.4.0
 * [networkx](http://networkx.github.io/)
 
 ## Data
